@@ -1,0 +1,29 @@
+steps:
+  # see https://www.npmjs.com/package/editorconfig-checker
+  - id: eclint
+    name: "e53e225/editorconfig-checker"  
+  - id: go_version
+    name: "gcr.io/cloud-builders/go"
+    args: ["version"]
+    env: ["GOPATH=."]  
+  - id: go_linter
+    name: "golangci/golangci-lint"
+    args: ["golangci-lint","run"]  
+    env: ["GO111MODULE=on", "CGO_ENABLED=0"]
+  - id: go_security
+    name: "securego/gosec"
+    args: ["-exclude=G204", "./..." ] # excluding G204 due do using the influx binary tooling
+  - id: go_build
+    name: "mirror.gcr.io/library/golang"
+    env: ['GO111MODULE=on']
+    args: ['go', 'build', './...']
+  - id: doc_check
+    name: "ubuntu"
+    args: ['bash', './test/doc-check.sh']
+#   name: "gcr.io/cloud-builders/go"
+#   args: ["build"]
+#   env: ["GOPATH=.","GO111MODULE=on", "CGO_ENABLED=0"]
+# - id: go_test
+#   name: "gcr.io/cloud-builders/go"
+#   args: ["test","helloworld"]
+#   env: ["GOPATH=."]  
