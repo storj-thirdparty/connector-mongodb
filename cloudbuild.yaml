@@ -12,7 +12,7 @@ steps:
     env: ["GO111MODULE=on", "CGO_ENABLED=0"]
   - id: go_security
     name: "securego/gosec"
-    args: ["-exclude=G204", "./..." ] # excluding G204 due do using the influx binary tooling
+    args: ["./..." ] 
   - id: go_build
     name: "mirror.gcr.io/library/golang"
     env: ['GO111MODULE=on']
