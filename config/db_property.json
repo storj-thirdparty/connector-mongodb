@@ -1,0 +1,7 @@
+{ 
+    "hostname": "change-me-to-hostname",
+    "port":     "change-me-to-port",
+    "username": "change-me-to-username",
+    "password": "change-me-to-password",
+    "database": "change-me-to-maria-database-name"
+}
