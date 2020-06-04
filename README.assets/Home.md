@@ -4,7 +4,7 @@
 
 ## Config Files
 
-There are two config files that contain Storj network and MaraiDB connection information. The tool is designed so you can specify a config file as part of your tooling/workflow. 
+There are two config files that contain Storj network and mongoDB connection information. The tool is designed so you can specify a config file as part of your tooling/workflow. 
 
 
 
