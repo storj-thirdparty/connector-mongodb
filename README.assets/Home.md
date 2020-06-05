@@ -4,7 +4,7 @@
 
 ## Config Files
 
-There are two config files that contain Storj network and MaraiDB connection information. The tool is designed so you can specify a config file as part of your tooling/workflow. 
+There are two config files that contain Storj network and mongoDB connection information. The tool is designed so you can specify a config file as part of your tooling/workflow. 
 
 
 
@@ -55,19 +55,19 @@ $ ./connector-mongodb --help
 $ ./connector-mongodb --version
 ```
 
-##### Create back-up from MaraiDB and upload them to Storj
+##### Create back-up from mongoDB and upload them to Storj
 
 ```
 $ ./connector-mongodb store --mongob <path_to_mongo_config_file> --storj <path_to_storj_config_file>
 ```
 
-##### Create back-up from MaraiDB and upload it to Storj bucket using Access Key
+##### Create back-up from mongoDB and upload it to Storj bucket using Access Key
 
 ```
 $ ./connector-mongodb store --accesskey
 ```
 
-##### Create back-up from MaraiDB and upload it to Storj and generate a Shareable Access Key based on restrictions in `storj_config.json`
+##### Create back-up from mongoDB and upload it to Storj and generate a Shareable Access Key based on restrictions in `storj_config.json`
 
 ```
 $ ./connector-mongodb store --share
