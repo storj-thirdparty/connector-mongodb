@@ -65,7 +65,7 @@ go build
  To download the project inside your GOPATH use the following command:
 
 ```
-go get github.com/storj-thridparty/connector-mongodb
+go get github.com/storj-thirdparty/connector-mongodb
 ```
 
 
