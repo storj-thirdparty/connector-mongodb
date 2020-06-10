@@ -1,3 +1,4 @@
+#!/bin/bash
 ## verify documentation is present. 
 ## cd is /workspace
 HOME_MD="./README.assets/Home.md"
