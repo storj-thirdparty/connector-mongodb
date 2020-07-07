@@ -1,5 +1,6 @@
 ## connector-mongodb (uplink v1.0.5)
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/d637c9ce9f574fb9a1bab1a8f1960a1d)](https://app.codacy.com/gh/storj-thirdparty/connector-mongodb?utm_source=github.com&utm_medium=referral&utm_content=storj-thirdparty/connector-mongodb&utm_campaign=Badge_Grade_Dashboard)
 [![Go Report Card](https://goreportcard.com/badge/github.com/storj-thirdparty/connector-mongodb)](https://goreportcard.com/report/github.com/storj-thirdparty/connector-mongodb)
 ![Cloud Build](https://storage.googleapis.com/storj-utropic-services-badges/builds/connector-mongodb/branches/master.svg)
 
