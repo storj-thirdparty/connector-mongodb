@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"path"
+	"time"
 
 	"github.com/spf13/cobra"
 )
@@ -46,11 +47,10 @@ func mongoStore(cmd *cobra.Command, args []string) {
 
 	// Establish connection with MongoDB and create the customized reader to implement streaming
 	reader := ConnectToDB(configMongoDB)
-
 	// Fetch all backup files from MongoDB instance and simultaneously store them into desired Storj bucket.
-	fmt.Printf("\nInitiating back-up.\n")
-	uploadFileName := path.Join(configMongoDB.Database, configMongoDB.Database+".bson")
-	UploadData(project, storjConfig, uploadFileName, reader)
+	fmt.Printf("Initiating back-up.\n\n")
+	uploadFileName := path.Join(configMongoDB.Database, configMongoDB.Database+time.Now().Format("2006-01-02_15_04_05"))
+	UploadData(project, storjConfig, uploadFileName, reader, reader.collectionNames[0])
 	fmt.Printf("\nBack-up complete.\n\n")
 
 	// Create restricted shareable serialized access if share is provided as argument.

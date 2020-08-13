@@ -5,7 +5,7 @@
 
 ## Overview
 
-The MongoDB Connector connects to an MongoDB database, takes a backup of the specified database and uploads the backup files on Storj network.
+The mongoDB Connector connects to an mongoDB database, takes a backup of the specified database and uploads the backup data on Storj network. It can also restore the latest back-up of a specified database to the local storage.
 
 ```bash
 Usage:
@@ -13,31 +13,36 @@ Usage:
 
 Available Commands:
   help        Help about any command
-  store       Command to upload data to a Storj V3 network.
+  restore	  Command to restore the latest back-up to the local disk
+  store       Command to upload data to a Storj V3 network
   version     Prints the version of the tool
 
 ```
 
-`store` - Connect to the specified database(default: `mongodb_property.json`). Back-up of the database is generated using tooling provided by mongodb and then uploaded to the Storj network. Connect to a Storj v3 network using the access specified in the Storj configuration file(default: `storj_config.json`).
+`store` - Connect to the specified database (default: `db_property.json`). Back-up of the database is generated using tooling provided by mongoDB and then uploaded to the Storj network. Connect to a Storj v3 network using the access specified in the Storj configuration file (default: `storj_config.json`). 
 
-Back-up data is iterated through and upload in chunks of 32 KB to the Storj network.
+ Back-up data is iterated through and upload in 1 MB chunks to the Storj network.
 
 The following flags  can be used with the `store` command:
 
 * `accesskey` - Connects to the Storj network using a serialized access key instead of an API key, satellite url and encryption passphrase.
 * `share` - Generates a restricted shareable serialized access with the restrictions specified in the Storj configuration file.
 
-Sample configuration files are provided in the `./config` folder.
+`restore` - Connect to a Storj v3 network using the access specified in the Storj configuration file (default: `storj_config.json`). Latest back-up of the particular database is located and downloaded to local storage. 
 
+The following flags  can be used with the `restore` command:
 
+* `accesskey` - Connects to the Storj network using a serialized access key instead of an API key, satellite url and encryption passphrase.
+* `match` - Matches to regular expression with the databases whose back-up(s) are uplaoded to Storj network and restores the latest back-up of all the matching databases.
+* `latest` - Restores the latest back-up of the specified MongoDB database.
+
+Sample configuration files are provided in the `./config` folder. 
 
 ## Requirements and Install
 
 To build from scratch, [install the latest Go](https://golang.org/doc/install#install).
 
 > Note: Ensure go modules are enabled (GO111MODULE=on)
-
-
 
 ### Option #1: clone this repo (most common)
 
@@ -53,8 +58,6 @@ Then, build the project using the following:
 cd connector-mongodb
 go build
 ```
-
-
 
 ### Option #2:  ``go get`` into your gopath
 
@@ -87,6 +90,11 @@ $ ./connector-mongodb --version
 $ ./connector-mongodb store
 ```
 
+### Restore latest backup from from Storj and save to local disk
+
+```
+$ ./connector-mongodb restore
+```
 
 ## Flow Diagram
 
