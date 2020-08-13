@@ -98,7 +98,7 @@ func (mongoReader *MongoReader) Read(buf []byte) (int, error) {
 			return numOfBytesRead, err
 		}
 
-		fmt.Println("\nAll data of the collection %s are uploaded!", mongoReader.collectionNames[ij])
+		fmt.Printf("\nAll data of the collections %s are uploaded!", mongoReader.collectionNames[ij])
 		// All documents of the selected collection have been read.
 		if mongoReader.lastDocumentIndex > 0 {
 			// Reset the document index to be read from.
