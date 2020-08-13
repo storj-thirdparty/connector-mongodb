@@ -206,6 +206,9 @@ func findLatestBackup(project *uplink.Project, backupPath string) string {
 		backups = append(backups, item.Key)
 	}
 	sort.Strings(backups)
+	if len(backups) == 0 {
+		log.Fatal("Error: No back-up to restore!")
+	}
 	return backups[len(backups)-1]
 }
 
@@ -264,8 +267,8 @@ func RestoreData(project *uplink.Project, backupPath string, latest bool, showPr
 		}
 
 		downloadFileName := filepath.Join("dump", filepath.Base(filepath.Dir(item.Key)), filepath.Base(item.Key))
-		_ = os.MkdirAll(filepath.Dir(downloadFileName), 0777)
-		err = ioutil.WriteFile(downloadFileName, receivedContents, 0777)
+		_ = os.MkdirAll(filepath.Dir(downloadFileName), 0750)
+		err = ioutil.WriteFile(downloadFileName, receivedContents, 0600)
 		if err != nil {
 			log.Fatal(err)
 		}
