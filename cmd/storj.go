@@ -64,9 +64,15 @@ func LoadStorjConfiguration(fullFileName string) ConfigStorj {
 	fmt.Println("Bucket		: ", configStorj.Bucket)
 
 	// Convert the upload path to standard form.
-	checkSlash := configStorj.UploadPath[len(configStorj.UploadPath)-1:]
-	if checkSlash != "/" {
-		configStorj.UploadPath = configStorj.UploadPath + "/"
+	if configStorj.UploadPath != "" {
+		if configStorj.UploadPath == "/" {
+			configStorj.UploadPath = ""
+		} else {
+			checkSlash := configStorj.UploadPath[len(configStorj.UploadPath)-1:]
+			if checkSlash != "/" {
+				configStorj.UploadPath = configStorj.UploadPath + "/"
+			}
+		}
 	}
 
 	fmt.Println("Upload Path\t: ", configStorj.UploadPath)
@@ -164,7 +170,7 @@ func UploadData(project *uplink.Project, configStorj ConfigStorj, uploadFileName
 	if err != nil {
 		log.Fatal("Could not initiate upload : ", err)
 	}
-	fmt.Printf("\nUploading %s to %s...\n", configStorj.UploadPath+uploadFileName+"/"+firstCollection+".bson", configStorj.Bucket)
+	fmt.Printf("Uploading %s to %s...\n", configStorj.UploadPath+uploadFileName+"/"+firstCollection+".bson", configStorj.Bucket)
 
 	buf := make([]byte, 10485760)
 	var err1 = io.ErrShortBuffer
@@ -289,16 +295,37 @@ func MatchAndRestore(project *uplink.Project, matchPattern string, backupPath st
 		log.Fatal("Error: match used without `latest` flag!")
 	}
 	ctx := context.Background()
-	databases := project.ListObjects(ctx, keys[0], &uplink.ListObjectsOptions{Prefix: backupPath[len(keys[0])+1:] + "/"})
-	for databases.Next() {
-		item := databases.Item()
-		matched, err := regexp.MatchString(matchPattern, filepath.Base(item.Key))
-		if err != nil {
+	if len(keys) == 1 {
+		if _, err := project.StatBucket(ctx, backupPath); err != nil {
 			log.Fatal(err)
 		}
-		if matched {
-			fmt.Println("Matching database: ", keys[0]+"/"+item.Key)
-			RestoreData(project, keys[0]+"/"+item.Key, latest, showProgress)
+		databases := project.ListObjects(ctx, backupPath, nil)
+		for databases.Next() {
+			item := databases.Item()
+			matched, err := regexp.MatchString(matchPattern, filepath.Base(item.Key))
+			if err != nil {
+				log.Fatal(err)
+			}
+			if matched {
+				fmt.Println("Matching database: ", backupPath+"/"+item.Key)
+				RestoreData(project, backupPath+"/"+item.Key, latest, showProgress)
+			}
+		}
+	} else {
+		if _, err := project.StatBucket(ctx, keys[0]); err != nil {
+			log.Fatal(err)
+		}
+		databases := project.ListObjects(ctx, keys[0], &uplink.ListObjectsOptions{Prefix: backupPath[len(keys[0])+1:] + "/"})
+		for databases.Next() {
+			item := databases.Item()
+			matched, err := regexp.MatchString(matchPattern, filepath.Base(item.Key))
+			if err != nil {
+				log.Fatal(err)
+			}
+			if matched {
+				fmt.Println("Matching database: ", keys[0]+"/"+item.Key)
+				RestoreData(project, keys[0]+"/"+item.Key, latest, showProgress)
+			}
 		}
 	}
 }
