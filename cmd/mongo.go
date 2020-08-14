@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -30,6 +31,8 @@ type MongoReader struct {
 	lastDocumentIndex int
 }
 
+var currentCollection string
+
 // Read reads collections' data as per the buffer capacity.
 // It returns number of bytes (int) read and any error, if occurred.
 // EOF error is returned after complete read.
@@ -38,7 +41,7 @@ func (mongoReader *MongoReader) Read(buf []byte) (int, error) {
 	var err error
 	ctx := context.TODO()
 
-	bufferCapacity := cap(buf)
+	bufferCapacity := len(buf)
 	filterBSON := bson.M{}
 
 	if mongoReader.collectionNames == nil {
@@ -50,64 +53,70 @@ func (mongoReader *MongoReader) Read(buf []byte) (int, error) {
 		}
 	}
 
-	var numOfBytesRead = 0
+	var numOfBytesRead int
 	// Go through ALL collections.
-	for ij := range mongoReader.collectionNames {
-		collection := mongoReader.database.Collection(mongoReader.collectionNames[ij])
-		cursor, err := collection.Find(ctx, filterBSON)
-		if err != nil {
-			log.Printf("Failed to retrieve data about %s collection: %s\n", mongoReader.collectionNames[ij], err)
-			return numOfBytesRead, err
-		}
-		defer cursor.Close(ctx)
+	//	for currentCollectionIndex := range mongoReader.collectionNames {
+	collection := mongoReader.database.Collection(mongoReader.collectionNames[0])
+	cursor, err := collection.Find(ctx, filterBSON)
+	if err != nil {
+		log.Printf("Failed to retrieve data about %s collection: %s\n", mongoReader.collectionNames[0], err)
+		return numOfBytesRead, err
+	}
+	defer cursor.Close(ctx)
 
-		var documentCount, lastIndex int
-		// Retrieve each document of the selected collection.
-		for cursor.Next(ctx) {
-			// Start reading from the last document that was under process.
-			if documentCount >= mongoReader.lastDocumentIndex {
-				// Convert JSON to BSON.
-				rawDocumentBSON, _ := bson.Marshal(cursor.Current)
-				documentSize := len(rawDocumentBSON)
-				// Ensure required space is available in buf.
-				if (numOfBytesRead + documentSize) < bufferCapacity {
-					lastIndex = numOfBytesRead + len(rawDocumentBSON)
-					copy(buf[numOfBytesRead:lastIndex], rawDocumentBSON)
-					numOfBytesRead += documentSize
-				} else {
-					// Insufficient space in the buffer.
-					err = io.ErrShortBuffer
-					// Next time, start with the unprocessed collections.
-					mongoReader.collectionNames = mongoReader.collectionNames[ij:]
-					// Also, operate from the current document instance.
-					mongoReader.lastDocumentIndex = documentCount
-
-					return numOfBytesRead, err
-				}
+	var documentCount, lastIndex int
+	// Retrieve each document of the selected collection.
+	for cursor.Next(ctx) {
+		// Start reading from the last document that was under process.
+		if documentCount >= mongoReader.lastDocumentIndex {
+			// Convert JSON to BSON.
+			rawDocumentBSON, _ := bson.Marshal(cursor.Current)
+			documentSize := len(rawDocumentBSON)
+			// Ensure required space is available in buf.
+			if (numOfBytesRead + documentSize) < bufferCapacity {
+				lastIndex = numOfBytesRead + len(rawDocumentBSON)
+				copy(buf[numOfBytesRead:lastIndex], rawDocumentBSON)
+				numOfBytesRead += documentSize
+			} else {
+				// Insufficient space in the buffer.
+				err = io.ErrShortBuffer
+				// Next time, start with the unprocessed collections.
+				mongoReader.collectionNames = mongoReader.collectionNames[0:]
+				// Also, operate from the current document instance.
+				mongoReader.lastDocumentIndex = documentCount
+				return numOfBytesRead, err
 			}
-			documentCount++
 		}
+		documentCount++
+	}
 
-		if err := cursor.Err(); err != nil {
-			// Unexpected error occurred while processing cursors.
-			// Next time, start with the unprocessed collections.
-			mongoReader.collectionNames = mongoReader.collectionNames[ij:]
-			// Also, operate from the current document instance.
-			mongoReader.lastDocumentIndex = documentCount + 1
-			// The caller needs to recall the Reader to fetch left-over data.
-			return numOfBytesRead, err
-		}
+	if err := cursor.Err(); err != nil {
+		// Unexpected error occurred while processing cursors.
+		// Next time, start with the unprocessed collections.
+		mongoReader.collectionNames = mongoReader.collectionNames[0:]
+		// Also, operate from the current document instance.
+		mongoReader.lastDocumentIndex = documentCount + 1
+		// The caller needs to recall the Reader to fetch left-over data.
+		return numOfBytesRead, err
+	}
 
-		fmt.Printf("\nAll data of the collections %s are uploaded!", mongoReader.collectionNames[ij])
+	if len(mongoReader.collectionNames) > 1 {
+		mongoReader.collectionNames = mongoReader.collectionNames[0+1:]
+	} else {
+		mongoReader.collectionNames = nil
+	}
+	if mongoReader.collectionNames != nil {
+		currentCollection = mongoReader.collectionNames[0]
 		// All documents of the selected collection have been read.
 		if mongoReader.lastDocumentIndex > 0 {
 			// Reset the document index to be read from.
 			mongoReader.lastDocumentIndex = 0
 		}
+		return numOfBytesRead, errors.New("No error")
 	}
+	// 	break
+	// }
 	// All collections have been read and processed.
-	mongoReader.collectionNames = nil
-
 	return numOfBytesRead, io.EOF
 }
 
@@ -149,7 +158,7 @@ func LoadMongoProperty(fullFileName string) ConfigMongoDB {
 func ConnectToDB(configMongoDB ConfigMongoDB) *MongoReader {
 
 	fmt.Println("Connecting to MongoDB...")
-
+	ctx := context.TODO()
 	mongoURL := fmt.Sprintf("mongodb://%s:%s@%s:%s/%s?authSource="+configMongoDB.Database, configMongoDB.Username, configMongoDB.Password, configMongoDB.Hostname, configMongoDB.Portnumber, configMongoDB.Database)
 	clientOptions := options.Client().ApplyURI(mongoURL)
 	client, err := mongo.Connect(context.TODO(), clientOptions)
@@ -164,5 +173,13 @@ func ConnectToDB(configMongoDB ConfigMongoDB) *MongoReader {
 
 	fmt.Println("Successfully connected to MongoDB!")
 
-	return &MongoReader{database: client.Database(configMongoDB.Database)}
+	mongoReader := MongoReader{database: client.Database(configMongoDB.Database)}
+	filterBSON := bson.M{}
+	collectionNames, err := mongoReader.database.ListCollectionNames(ctx, filterBSON)
+	if err != nil {
+		log.Fatalf("Failed to retrieve collection names: %s\n", err)
+		log.Fatal(err)
+	}
+
+	return &MongoReader{database: client.Database(configMongoDB.Database), collectionNames: collectionNames}
 }

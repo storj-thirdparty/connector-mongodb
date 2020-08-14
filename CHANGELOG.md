@@ -1,4 +1,9 @@
-# Connector-MariaDB Changelog
+# Connector-MongoDB Changelog
+
+## [1.0.5] - 11-08-2020
+### Changelog:
+* Optimized performance by incresing the buffer size to 1 MB.
+* Added `restore` command to restore the back-up.
 
 ## [1.0.5] - 25-05-2020
 ### Changelog:
