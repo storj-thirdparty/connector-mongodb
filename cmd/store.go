@@ -29,7 +29,6 @@ func init() {
 }
 
 func mongoStore(cmd *cobra.Command, args []string) {
-
 	// Process arguments from the CLI.
 	mongoConfigfilePath, _ := cmd.Flags().GetString("mongo")
 	fullFileNameStorj, _ := cmd.Flags().GetString("storj")
@@ -43,7 +42,7 @@ func mongoStore(cmd *cobra.Command, args []string) {
 	storjConfig := LoadStorjConfiguration(fullFileNameStorj)
 
 	// Connect to storj network using the specified credentials.
-	access, project := ConnectToStorj(fullFileNameStorj, storjConfig, useAccessKey)
+	access, project := ConnectToStorj(storjConfig, useAccessKey)
 
 	// Establish connection with MongoDB and create the customized reader to implement streaming
 	reader := ConnectToDB(configMongoDB)

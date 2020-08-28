@@ -1,5 +1,9 @@
 # Connector-MongoDB Changelog
 
+## [1.0.5] - 25-08-2020
+### Changelog:
+* Added CI-CD pipeline.
+
 ## [1.0.5] - 11-08-2020
 ### Changelog:
 * Optimized performance by incresing the buffer size to 1 MB.
