@@ -37,7 +37,7 @@ The following flags  can be used with the `restore` command:
 * `accesskey` - Connects to the Storj network using a serialized access key instead of an API key, satellite url and encryption passphrase.
 * `match` - Matches to regular expression with the databases whose back-up(s) are uplaoded to Storj network and restores the latest back-up of all the matching databases. It only works with the `latest` flag.
 * `latest` - Restores the latest back-up of the specified MongoDB database.
-* `path` - Restores the back-up of the path specified starting from the bucket name till the specified back-up. Restores the latest when used with *latest* flag and path till a database name.
+* `database` - Storj path of the database back-up to be restored. Takes only database name if used with `latest` flag.
 
 Sample configuration files are provided in the `./config` folder. 
 
@@ -106,3 +106,4 @@ For more information on runtime flags, configuration, testing, and diagrams, che
 * [Run (long version)](//github.com/storj-thirdparty/connector-mongodb/wiki/#run)
 * [Testing](//github.com/storj-thirdparty/connector-mongodb/wiki/#testing)
 * [Flow Diagram](//github.com/storj-thirdparty/connector-mongodb/wiki/#flow-diagram)
+* [Video](//github.com/storj-thirdparty/connector-mongodb/docs/videos)

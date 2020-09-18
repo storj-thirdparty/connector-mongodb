@@ -1,8 +1,8 @@
 # Connector-MongoDB Changelog
 
-## [1.0.5] - 25-08-2020
+## [1.0.5] - 17-09-2020
 ### Changelog:
-* Added CI-CD pipeline.
+* Add video section in ReadME.md
 
 ## [1.0.5] - 11-08-2020
 ### Changelog:
