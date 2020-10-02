@@ -44,7 +44,7 @@ func mongorestore(cmd *cobra.Command, args []string) {
 	storjConfig := LoadStorjConfiguration(fullFileNameStorj)
 
 	// Connect to storj network using the specified credentials.
-	_, project := ConnectToStorj(fullFileNameStorj, storjConfig, useAccessKey)
+	_, project := ConnectToStorj(storjConfig, useAccessKey)
 
 	// Restore the backup from specified Storj bucket.
 	fmt.Printf("Initiating restore.\n\n")

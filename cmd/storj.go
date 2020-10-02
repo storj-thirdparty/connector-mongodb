@@ -111,13 +111,13 @@ func ShareAccess(access *uplink.Access, configStorj ConfigStorj) {
 	if err != nil {
 		log.Fatal("Could not serialize shared access: ", err)
 	}
-	fmt.Println("Shareable sererialized access: ", serializedAccess)
+	fmt.Println("Shareable serialized access: ", serializedAccess)
 }
 
 // ConnectToStorj reads Storj configuration from given file
 // and connects to the desired Storj network.
 // It then reads data property from an external file.
-func ConnectToStorj(fullFileName string, configStorj ConfigStorj, accesskey bool) (*uplink.Access, *uplink.Project) {
+func ConnectToStorj(configStorj ConfigStorj, accesskey bool) (*uplink.Access, *uplink.Project) {
 
 	var access *uplink.Access
 	var cfg uplink.Config
@@ -283,7 +283,11 @@ func RestoreData(project *uplink.Project, backupPath string, latest bool, showPr
 	if len(restored) == 0 {
 		log.Fatal("Error: Nothing to restore as the given path.")
 	}
-	fmt.Printf("\nBackup of %s restored.\n", keys[len(keys)-2])
+	if latest {
+		fmt.Printf("\nLatest back-up restored.\n")
+	} else {
+		fmt.Printf("\nBack-up restored.\n")
+	}
 }
 
 // MatchAndRestore finds the databases corresponding the pattern entered by the user
